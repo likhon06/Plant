@@ -1,7 +1,9 @@
-import { Button } from "@/components/ui/button";
+import { Hero } from "@/components/Hero";
 
 export default function Home() {
   return (
-    <Button>Click me</Button>
+      <main className="flex items-center justify-center">
+        <Hero/>
+      </main>
   );
 }
