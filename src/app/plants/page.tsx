@@ -3,10 +3,10 @@ import { stackServerApp } from "@/stack";
 import InventoryTable from "@/components/InventoryTable";
 import { SignUp } from "@stackframe/stack";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { getPlants } from "@/actions/plant.action";
 import { PlantFromDB } from "@/components/InventoryTable";
+import AddPlantDialog from "@/components/AddPlantDialog";
 
 const Plants = async () => {
   const user = await stackServerApp.getUser();
@@ -20,7 +20,7 @@ const Plants = async () => {
               <Input type="text" placeholder="Search plants" className="pl-10" />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
-            <Button>+ Add Plant</Button>
+            <AddPlantDialog />
           </div>
           <InventoryTable plants={plants.data as PlantFromDB[]} />
         </>
