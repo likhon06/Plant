@@ -5,60 +5,113 @@ import { revalidatePath } from "next/cache";
 export async function getPlants(searchTerm?: string) {
     try {
         const currentUserId = await getUserId();
-        // First, let's set up which plants we want to find
         const searchRules: any = {
-            userId: currentUserId, // Only get plants that belong to this user
+            userId: currentUserId,
         };
-
-        // If someone typed in a search word, also look for plants with that name
         if (searchTerm) {
             searchRules.name = {
-                contains: searchTerm, // Find any plant names that have this word
-                mode: "insensitive"  // Don't worry about uppercase/lowercase
+                contains: searchTerm,
+                mode: "insensitive"
             };
         }
-
-        // Get all the plants that match our rules
         const myPlants = await prisma.plants.findMany({
             where: searchRules
         });
-
-        // Send back the plants we found
         return {
             success: true,
             data: myPlants
         };
     } catch (error) {
-        console.error(error);
         return { success: false, message: "Failed to get plants" };
     }
 }
 
+export async function getPlantById(plantId: string) {
+    try {
+        const currentUserId = await getUserId();
+        const plant = await prisma.plants.findFirst({
+            where: {
+                id: plantId,
+                userId: currentUserId
+            }
+        });
+        if (!plant) {
+            return {
+                success: false,
+                message: "Plant not found"
+            };
+        }
+        return {
+            success: true,
+            data: plant
+        };
+    } catch (error) {
+        return { success: false, message: "Failed to get plant" };
+    }
+}
 
 export async function createPlant(plantData: any) {
     try {
         const userId = await getUserId();
+        const processedData: any = {
+            name: plantData.name,
+            category: plantData.category,
+            price: parseFloat(plantData.price),
+            stock: parseInt(plantData.stock),
+            description: plantData.description || null,
+            imageUrl: plantData.imageUrl || null,
+            userId: userId
+        };
         const plant = await prisma.plants.create({
-            data: { ...plantData, userId }
+            data: processedData
         });
         revalidatePath('/plants');
         return { success: true, data: plant };
     } catch (error) {
-        console.error(error);
         return { success: false, message: "Failed to create plant" };
     }
 }
 
 export async function updatePlant(id: string, plantData: any) {
     try {
+        const userId = await getUserId();
+
+        // First check if the plant exists and belongs to the user
+        const existingPlant = await prisma.plants.findFirst({
+            where: {
+                id: id,
+                userId: userId
+            }
+        });
+
+        if (!existingPlant) {
+            return {
+                success: false,
+                message: "Plant not found or you don't have permission to update it"
+            };
+        }
+
+        const processedData = {
+            name: plantData.name,
+            category: plantData.category,
+            price: parseFloat(plantData.price),
+            stock: parseInt(plantData.stock),
+            description: plantData.description || null,
+            imageUrl: plantData.imageUrl || null,
+        };
+
+        console.log("Updating plant with data:", processedData);
+
         const plant = await prisma.plants.update({
             where: { id },
-            data: plantData
+            data: processedData
         });
+
+        console.log("Plant updated successfully:", plant);
         revalidatePath('/plants');
         return { success: true, data: plant };
     } catch (error) {
-        console.error(error);
+        console.error("Error updating plant:", error);
         return { success: false, message: "Failed to update plant" };
     }
 }
@@ -71,18 +124,10 @@ export async function deletePlant(id: string) {
         revalidatePath('/plants');
         return { success: true };
     } catch (error) {
-        console.error(error);
         return { success: false, message: "Failed to delete plant" };
     }
 }
 
-
 export async function deletePlantAction(id: string) {
     return await deletePlant(id);
 }
-
-
-// GET - DONE
-// DELETE - DONE
-// CREATE
-// UPDATE

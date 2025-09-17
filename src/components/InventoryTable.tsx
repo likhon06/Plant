@@ -20,6 +20,9 @@ import { Button } from "./ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { deletePlantAction } from "@/actions/plant.action";
+import { useRouter } from "next/navigation";
+import { Dialog, DialogTrigger } from "./ui/dialog";
+import PlantDialog from "./PlantDialog";
 
 export interface PlantFromDB {
   id: string;
@@ -37,11 +40,12 @@ export interface PlantFromDB {
 
 const InventoryTable = ({ plants }: { plants: PlantFromDB[] }) => {
   const handleEdit = (id: string) => {
-    console.log(id);
+
   };
   const handleDelete = async (id: string) => {
     await deletePlantAction(id);
   };
+  const router = useRouter();
   return (
     <div className="w-[95%] mx-auto">
       <Table>
@@ -59,12 +63,12 @@ const InventoryTable = ({ plants }: { plants: PlantFromDB[] }) => {
         <TableBody>
           {plants.map((plant: PlantFromDB) => (
             <TableRow key={plant.id}>
-              <TableCell>{plant.id}</TableCell>
-              <TableCell>{plant.name}</TableCell>
-              <TableCell>{plant.description}</TableCell>
-              <TableCell>{plant.category}</TableCell>
-              <TableCell>{plant.price}</TableCell>
-              <TableCell>{plant.stock}</TableCell>
+              <TableCell onClick={() => router.push(`/plants/${plant.id}`)}>{plant.id}</TableCell>
+              <TableCell onClick={() => router.push(`/plants/${plant.id}`)}>{plant.name}</TableCell>
+              <TableCell onClick={() => router.push(`/plants/${plant.id}`)}>{plant.description}</TableCell>
+              <TableCell onClick={() => router.push(`/plants/${plant.id}`)}>{plant.category}</TableCell>
+              <TableCell onClick={() => router.push(`/plants/${plant.id}`)}>{plant.price}</TableCell>
+              <TableCell onClick={() => router.push(`/plants/${plant.id}`)}>{plant.stock}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
                   <DropdownMenu>
@@ -75,9 +79,14 @@ const InventoryTable = ({ plants }: { plants: PlantFromDB[] }) => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEdit(plant.id)}>
-                        <FiEdit className="mr-2" /> Edit
-                      </DropdownMenuItem>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            <FiEdit className="mr-2" /> Edit
+                          </DropdownMenuItem>
+                        </DialogTrigger>
+                        <PlantDialog actionType="edit" />
+                      </Dialog>
                       <DropdownMenuItem onClick={() => handleDelete(plant.id)}>
                         <FiTrash2 className="mr-2" /> Delete
                       </DropdownMenuItem>
