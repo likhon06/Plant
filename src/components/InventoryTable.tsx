@@ -33,8 +33,8 @@ export interface PlantFromDB {
   createdAt: Date;
   updatedAt: Date;
   category: string;
-  imageUrl?: string;
-  description?: string;
+  imageUrl?: string | null;
+  description?: string | null;
 }
 
 
@@ -85,7 +85,7 @@ const InventoryTable = ({ plants }: { plants: PlantFromDB[] }) => {
                             <FiEdit className="mr-2" /> Edit
                           </DropdownMenuItem>
                         </DialogTrigger>
-                        <PlantDialog actionType="edit" />
+                        <PlantDialog actionType="edit" id={plant.id} />
                       </Dialog>
                       <DropdownMenuItem onClick={() => handleDelete(plant.id)}>
                         <FiTrash2 className="mr-2" /> Delete

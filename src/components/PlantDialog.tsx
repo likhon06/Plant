@@ -26,7 +26,7 @@ export default function PlantDialog({ actionType, id }: { actionType: "add" | "e
         setIsLoading(true);
         try {
             const formData = new FormData(e.target as HTMLFormElement);
-            const plantData: any = {
+            const plantData = {
                 name: formData.get("name") as string,
                 category: formData.get("category") as string,
                 price: formData.get("price") as string,
@@ -90,9 +90,9 @@ export default function PlantDialog({ actionType, id }: { actionType: "add" | "e
                     <Label>Image</Label>
                     <UploadButton
                         endpoint="imageUploader"
-                        onClientUploadComplete={(res: any) => {
+                        onClientUploadComplete={(res) => {
                             console.log("Files: ", res);
-                            setImageUrl(res[0].ufsUrl);
+                            setImageUrl(res?.[0]?.ufsUrl ?? "");
                             alert("Upload Completed");
                         }}
                         onUploadError={(error: Error) => {

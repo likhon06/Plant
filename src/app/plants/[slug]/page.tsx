@@ -5,10 +5,12 @@ import { SignIn } from '@stackframe/stack';
 import { getPlantById } from '@/actions/plant.action';
 
 
-async function page({ params }: { params: any }) {
+type PageParams = { slug: string };
+
+async function page({ params }: { params: PageParams }) {
     const user = await stackServerApp.getUser();
-    const { slug } = await params;
-    const plant: any = await getPlantById(slug);
+    const { slug } = params;
+    const plant = await getPlantById(slug);
 
     if (!user) {
         return <SignIn />
@@ -28,7 +30,7 @@ async function page({ params }: { params: any }) {
     return (
         <div className="mt-7 max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-10 gap-6">
             <div className="lg:col-span-full mt-20">
-                <PlantCard plant={plant.data} />
+                {plant.data ? <PlantCard plant={plant.data} /> : null}
             </div>
         </div>
     )

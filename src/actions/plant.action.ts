@@ -1,11 +1,14 @@
 'use server';
 import { prisma } from "@/lib/prisma";
+type FindManyWhere = NonNullable<Parameters<typeof prisma.plants.findMany>[0]>['where'];
+type CreateData = NonNullable<Parameters<typeof prisma.plants.create>[0]>['data'];
+type UpdateData = NonNullable<Parameters<typeof prisma.plants.update>[0]>['data'];
 import { getUserId } from "./user.action";
 import { revalidatePath } from "next/cache";
 export async function getPlants(searchTerm?: string) {
     try {
         const currentUserId = await getUserId();
-        const searchRules: any = {
+        const searchRules: FindManyWhere = {
             userId: currentUserId,
         };
         if (searchTerm) {
@@ -21,7 +24,7 @@ export async function getPlants(searchTerm?: string) {
             success: true,
             data: myPlants
         };
-    } catch (error) {
+    } catch {
         return { success: false, message: "Failed to get plants" };
     }
 }
@@ -45,34 +48,43 @@ export async function getPlantById(plantId: string) {
             success: true,
             data: plant
         };
-    } catch (error) {
+    } catch {
         return { success: false, message: "Failed to get plant" };
     }
 }
 
-export async function createPlant(plantData: any) {
+type PlantFormInput = {
+    name: string;
+    category: string;
+    price: string;
+    stock: string;
+    description?: string | null;
+    imageUrl?: string | null;
+};
+
+export async function createPlant(plantData: PlantFormInput) {
     try {
         const userId = await getUserId();
-        const processedData: any = {
+        const processedData: CreateData = {
             name: plantData.name,
             category: plantData.category,
             price: parseFloat(plantData.price),
             stock: parseInt(plantData.stock),
             description: plantData.description || null,
             imageUrl: plantData.imageUrl || null,
-            userId: userId
+            userId: userId as string,
         };
         const plant = await prisma.plants.create({
             data: processedData
         });
         revalidatePath('/plants');
         return { success: true, data: plant };
-    } catch (error) {
+    } catch {
         return { success: false, message: "Failed to create plant" };
     }
 }
 
-export async function updatePlant(id: string, plantData: any) {
+export async function updatePlant(id: string, plantData: PlantFormInput) {
     console.log("Updating plant with data:", plantData);
     console.log("Id:", id);
     console.log("User ID:", await getUserId());
@@ -94,7 +106,7 @@ export async function updatePlant(id: string, plantData: any) {
             };
         }
 
-        const processedData = {
+        const processedData: UpdateData = {
             name: plantData.name,
             category: plantData.category,
             price: parseFloat(plantData.price),
@@ -126,7 +138,7 @@ export async function deletePlant(id: string) {
         });
         revalidatePath('/plants');
         return { success: true };
-    } catch (error) {
+    } catch {
         return { success: false, message: "Failed to delete plant" };
     }
 }
