@@ -1,6 +1,5 @@
 
 "use client";
-
 import {
     DialogContent,
     DialogDescription,
@@ -8,17 +7,17 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { Button } from "./ui/button";
+import { toast } from "sonner";
+import { useState } from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-import { UploadButton } from "@/utils/uploadthing";
-import { useState } from "react";
-import { createPlant, updatePlant } from "@/actions/plant.action";
-import { toast } from "sonner";
 import { Spinner } from "./ui/shadcn-io/spinner";
+import { UploadButton } from "@/utils/uploadthing";
+import { createPlant, updatePlant } from "@/actions/plant.action";
 
-export default function PlantDialog({ actionType }: { actionType: "add" | "edit" }) {
+export default function PlantDialog({ actionType, id }: { actionType: "add" | "edit", id?: string }) {
     const [imageUrl, setImageUrl] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -35,12 +34,11 @@ export default function PlantDialog({ actionType }: { actionType: "add" | "edit"
                 description: formData.get("description") as string,
                 imageUrl: imageUrl,
             }
-            console.log("plantData : ", plantData);
             let result;
             if (actionType === "add") {
                 result = await createPlant(plantData);
             } else if (actionType === "edit") {
-                result = await updatePlant(plantData.id, plantData);
+                result = await updatePlant(id as string, plantData);
             }
             console.log("result : ", result);
             if (result?.success) {
@@ -51,7 +49,6 @@ export default function PlantDialog({ actionType }: { actionType: "add" | "edit"
                 toast.error(result?.message || "Failed to add plant");
             }
         } catch (error) {
-            console.error("Error adding plant:", error);
             toast.error("An error occurred while adding the plant");
         } finally {
             setIsLoading(false);

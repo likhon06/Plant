@@ -73,6 +73,9 @@ export async function createPlant(plantData: any) {
 }
 
 export async function updatePlant(id: string, plantData: any) {
+    console.log("Updating plant with data:", plantData);
+    console.log("Id:", id);
+    console.log("User ID:", await getUserId());
     try {
         const userId = await getUserId();
 

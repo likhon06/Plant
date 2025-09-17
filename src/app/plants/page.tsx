@@ -27,7 +27,7 @@ const Plants = async () => {
               <DialogTrigger asChild>
                 <Button>+ Add Plant</Button>
               </DialogTrigger>
-              <PlantDialog pantType="add" />
+              <PlantDialog actionType="add" />
             </Dialog>
           </div>
           <InventoryTable plants={plants.data as PlantFromDB[]} />
